@@ -64,5 +64,66 @@ describe('ex13: 日付計算の業務ロジック', () => {
       expect(isBusinessDay('2024-12-23')).toBe(false);
     });
   });
+
+  // リファクタリング検証テスト: 元のコードと同じ結果を返すことを確認
+  describe('リファクタリング検証: 計算結果の正確性', () => {
+    describe('calculateRentalFee: 様々なパターンで正確な結果を返す', () => {
+      test('車のレンタル料金が正確', () => {
+        const fee = calculateRentalFee('2024-12-01', '2024-12-02', 'car');
+        // 1日 * 5000円 = 5000円
+        expect(fee).toBe(5000);
+      });
+
+      test('自転車のレンタル料金が正確', () => {
+        const fee = calculateRentalFee('2024-12-01', '2024-12-02', 'bike');
+        // 1日 * 1000円 = 1000円
+        expect(fee).toBe(1000);
+      });
+
+      test('長期レンタルの割引（7日超）が正確', () => {
+        const fee = calculateRentalFee('2024-12-01', '2024-12-10', 'car');
+        // 9日 * 5000円 * 0.9 = 40500円
+        expect(fee).toBe(40500);
+      });
+
+      test('中期レンタルの割引（3日超7日以下）が正確', () => {
+        const fee = calculateRentalFee('2024-12-01', '2024-12-05', 'car');
+        // 4日 * 5000円 * 0.95 = 19000円
+        expect(fee).toBe(19000);
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const fee1 = calculateRentalFee('2024-12-01', '2024-12-02', 'car');
+        const fee2 = calculateRentalFee('2024-12-01', '2024-12-02', 'car');
+        expect(fee1).toBe(fee2);
+      });
+    });
+
+    describe('isBusinessDay: 様々なパターンで正確な結果を返す', () => {
+      test('平日はtrue', () => {
+        expect(isBusinessDay('2024-12-02')).toBe(true); // 月曜日
+        expect(isBusinessDay('2024-12-03')).toBe(true); // 火曜日
+        expect(isBusinessDay('2024-12-04')).toBe(true); // 水曜日
+      });
+
+      test('土曜日はfalse', () => {
+        expect(isBusinessDay('2024-12-07')).toBe(false);
+      });
+
+      test('日曜日はfalse', () => {
+        expect(isBusinessDay('2024-12-08')).toBe(false);
+      });
+
+      test('祝日はfalse', () => {
+        expect(isBusinessDay('2024-01-01')).toBe(false); // 1月1日
+        expect(isBusinessDay('2024-05-03')).toBe(false); // 5月3日
+        expect(isBusinessDay('2024-12-23')).toBe(false); // 12月23日
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        expect(isBusinessDay('2024-12-02')).toBe(isBusinessDay('2024-12-02'));
+      });
+    });
+  });
 });
 
