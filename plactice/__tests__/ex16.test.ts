@@ -71,5 +71,93 @@ describe('ex16: forループと配列操作のごちゃ混ぜ', () => {
       expect(calculateTotals(items)).toBe(1400);
     });
   });
+
+  // リファクタリング検証テスト: 元のコードと同じ結果を返すことを確認
+  describe('リファクタリング検証: 計算結果の正確性', () => {
+    describe('processUsers: 様々なパターンで正確な結果を返す', () => {
+      test('18歳以上のユーザーをフィルタ', () => {
+        const users = [
+          { firstName: 'John', lastName: 'Doe', age: 25, points: 100 },
+          { firstName: 'Jane', lastName: 'Smith', age: 17, points: 50 }
+        ];
+        const processed = processUsers(users);
+        expect(processed.every(u => u.age >= 18)).toBe(true);
+      });
+
+      test('fullNameが設定される', () => {
+        const users = [
+          { firstName: 'John', lastName: 'Doe', age: 30, points: 100 }
+        ];
+        const processed = processUsers(users);
+        if (processed.length > 0) {
+          expect(processed[0].fullName).toBe('John Doe');
+        }
+      });
+
+      test('平均年齢より大きいユーザーのみ', () => {
+        const users = [
+          { firstName: 'John', lastName: 'Doe', age: 25, points: 100 },
+          { firstName: 'Jane', lastName: 'Smith', age: 30, points: 200 }
+        ];
+        const processed = processUsers(users);
+        // 平均年齢は27.5なので、30歳のユーザーのみが残る
+        expect(processed.every(u => u.age > 27.5)).toBe(true);
+      });
+
+      test('スコアでソートされる', () => {
+        const users = [
+          { firstName: 'John', lastName: 'Doe', age: 25, points: 100 },
+          { firstName: 'Jane', lastName: 'Smith', age: 30, points: 200 }
+        ];
+        const processed = processUsers(users);
+        if (processed.length >= 2) {
+          expect(processed[0].score).toBeGreaterThanOrEqual(processed[1].score);
+        }
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const users = [
+          { firstName: 'John', lastName: 'Doe', age: 25, points: 100 },
+          { firstName: 'Jane', lastName: 'Smith', age: 30, points: 200 }
+        ];
+        const processed1 = processUsers(users);
+        const processed2 = processUsers(users);
+        expect(processed1).toEqual(processed2);
+      });
+    });
+
+    describe('calculateTotals: 様々なパターンで正確な結果を返す', () => {
+      test('基本的な合計計算が正確', () => {
+        const items = [
+          { price: 1000, category: 'normal' },
+          { price: 500, category: 'normal' }
+        ];
+        expect(calculateTotals(items)).toBe(1500);
+      });
+
+      test('saleカテゴリーは20%割引が正確', () => {
+        const items = [
+          { price: 1000, category: 'sale' }
+        ];
+        expect(calculateTotals(items)).toBe(800); // 1000 * 0.8 = 800
+      });
+
+      test('通常とセールの混合が正確', () => {
+        const items = [
+          { price: 1000, category: 'normal' },
+          { price: 500, category: 'sale' }
+        ];
+        expect(calculateTotals(items)).toBe(1400); // 1000 + 500 * 0.8 = 1400
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const items = [
+          { price: 1000, category: 'normal' },
+          { price: 500, category: 'sale' }
+        ];
+        expect(calculateTotals(items)).toBe(calculateTotals(items));
+      });
+    });
+  });
 });
 

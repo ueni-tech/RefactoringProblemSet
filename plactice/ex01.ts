@@ -10,46 +10,84 @@
 // - マジックナンバーの置換
 // - 条件記述の単純化
 
-function processOrder(items: any[], isMember: boolean, hasCoupon: boolean): string {
-  let total = 0;
+const discountRateForElectronics = 0.9;
+const discountRateForBuyInBulk = 0.95;
+const discountRateForMember = 0.9;
+const discountPriceForCoupon = 500;
+const discountPriceForHighValue = 300;
+const thresholdForHighValue = 10000;
+const taxRate = 0.1;
+
+function calculateItemPrice(item: any): number {
+  let price = item.price;
+
+  if (item.category === "electronics") {
+    price = price * discountRateForElectronics;
+  }
+
+  if (item.quantity > 5) {
+    price = price * discountRateForBuyInBulk;
+  }
+
+  return price * item.quantity;
+}
+
+function calculateTotal(items: any[]): number {
+  let result = 0;
+
   for (let i = 0; i < items.length; i++) {
-    let price = items[i].price;
-    if (items[i].category === 'electronics') {
-      price = price * 0.9;
-    }
-    if (items[i].quantity > 5) {
-      price = price * 0.95;
-    }
-    total += price * items[i].quantity;
+    result += calculateItemPrice(items[i]);
   }
-  
+
+  return result;
+}
+
+function applyDiscounts(total: number, isMember: boolean, hasCoupon: boolean): number {
+  let discountTotal = total;
+
   if (isMember) {
-    total = total * 0.9;
+    discountTotal = discountTotal * discountRateForMember;
   }
-  
+
   if (hasCoupon) {
-    total = total - 500;
+    discountTotal = discountTotal - discountPriceForCoupon;
   }
-  
-  if (total < 0) {
-    total = 0;
+
+  if (discountTotal < 0) {
+    discountTotal = 0;
   }
-  
-  let tax = total * 0.1;
-  let final = total + tax;
-  
-  if (final > 10000) {
-    final = final - 300;
+
+  return discountTotal;
+}
+
+function applyTax(total: number): number {
+  let tax = total * taxRate;
+  let TotalWithTax = total + tax;
+
+  return TotalWithTax;
+}
+
+function applyHighValeDiscount(final: number): number {
+  if (final > thresholdForHighValue) {
+    final = final - discountPriceForHighValue;
   }
-  
-  return '合計: ' + Math.floor(final) + '円';
+
+  return final;
+}
+
+function processOrder(items: any[], isMember: boolean, hasCoupon: boolean): string {
+  let total = calculateTotal(items);
+  total = applyDiscounts(total, isMember, hasCoupon);
+  let final = applyTax(total);
+  final = applyHighValeDiscount(final);
+
+  return "合計: " + Math.floor(final) + "円";
 }
 
 const order = [
-  { price: 2000, quantity: 3, category: 'electronics' },
-  { price: 1500, quantity: 2, category: 'books' }
+  { price: 2000, quantity: 3, category: "electronics" },
+  { price: 1500, quantity: 2, category: "books" },
 ];
 const result = processOrder(order, true, true);
 
 export { processOrder };
-

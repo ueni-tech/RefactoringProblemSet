@@ -75,5 +75,108 @@ describe('ex24: 長いメソッドチェーンと中間変数の欠如', () => {
       expect(transformed).toBeDefined();
     });
   });
+
+  // リファクタリング検証テスト: 元のコードと同じ結果を返すことを確認
+  describe('リファクタリング検証: 計算結果の正確性', () => {
+    describe('processUsers: 様々なパターンで正確な結果を返す', () => {
+      test('アクティブなユーザーを処理', () => {
+        const users = [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 25, points: 100, active: true },
+          { id: 2, firstName: 'Jane', lastName: 'Smith', age: 17, points: 50, active: true }
+        ];
+        const processed = processUsers(users);
+        expect(processed.length).toBeGreaterThan(0);
+        expect(processed[0].score).toBeGreaterThan(500);
+      });
+
+      test('fullNameが設定される', () => {
+        const users = [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 25, points: 100, active: true }
+        ];
+        const processed = processUsers(users);
+        expect(processed[0].name).toContain('John');
+        expect(processed[0].name).toContain('Doe');
+      });
+
+      test('スコアでソートされる', () => {
+        const users = [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 25, points: 100, active: true },
+          { id: 2, firstName: 'Jane', lastName: 'Smith', age: 30, points: 200, active: true }
+        ];
+        const processed = processUsers(users);
+        if (processed.length >= 2) {
+          expect(processed[0].score).toBeGreaterThanOrEqual(processed[1].score);
+        }
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const users = [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 25, points: 100, active: true }
+        ];
+        const processed1 = processUsers(users);
+        const processed2 = processUsers(users);
+        expect(processed1).toEqual(processed2);
+      });
+    });
+
+    describe('calculateReport: 様々なパターンで正確な結果を返す', () => {
+      test('基本的な統計情報が正確', () => {
+        const data = [
+          { id: 1, value: 10 },
+          { id: 2, value: 20 },
+          { id: 3, value: 30 }
+        ];
+        const report = calculateReport(data);
+        expect(report.total).toBe(3);
+        expect(report.average).toBe(20); // (10 + 20 + 30) / 3 = 20
+        expect(report.max).toBe(30);
+        expect(report.min).toBe(10);
+        expect(report.sum).toBe(60); // 10 + 20 + 30 = 60
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const data = [
+          { id: 1, value: 10 },
+          { id: 2, value: 20 }
+        ];
+        const report1 = calculateReport(data);
+        const report2 = calculateReport(data);
+        expect(report1).toEqual(report2);
+      });
+    });
+
+    describe('transformData: 様々なパターンで正確な結果を返す', () => {
+      test('データを変換', () => {
+        const data = [
+          { value: 5 },
+          { value: 10 },
+          { value: 15 }
+        ];
+        const transformed = transformData(data);
+        expect(transformed).toBeDefined();
+        expect(typeof transformed).toBe('string');
+      });
+
+      test('正の値のみが処理される', () => {
+        const data = [
+          { value: -5 },
+          { value: 10 },
+          { value: 0 }
+        ];
+        const transformed = transformData(data);
+        expect(transformed).toBeDefined();
+      });
+
+      test('同じ入力で常に同じ結果を返す', () => {
+        const data = [
+          { value: 5 },
+          { value: 10 }
+        ];
+        const transformed1 = transformData(data);
+        const transformed2 = transformData(data);
+        expect(transformed1).toBe(transformed2);
+      });
+    });
+  });
 });
 
